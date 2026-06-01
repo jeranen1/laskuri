@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Klasi — Kenttäkirjaus</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:#f4f4f4;padding:16px;}
+  h1{font-size:20px;font-weight:700;color:#0B2F5C;margin-bottom:2px;}
+  .sub{font-size:13px;color:#888;margin-bottom:20px;}
+  .card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);}
+  .card-title{font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;}
+  label{display:block;font-size:13px;color:#555;margin-bottom:4px;margin-top:10px;}
+  label:first-of-type{margin-top:0;}
+  input,select,textarea{
+    width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;
+    font-size:15px;font-family:inherit;background:#fff;color:#1a1a1a;
+    -webkit-appearance:none;appearance:none;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#0B2F5C;}
+  textarea{resize:none;height:70px;}
+  .tulos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+  .tulos-btn{
+    padding:12px 8px;border:1.5px solid #ddd;border-radius:8px;
+    font-size:14px;font-weight:500;text-align:center;cursor:pointer;
+    background:#fff;color:#555;transition:all 0.15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tulos-btn.active-kauppa{background:#e8f5e9;border-color:#2e7d32;color:#2e7d32;}
+  .tulos-btn.active-eikotona{background:#fff8e1;border-color:#f9a825;color:#f9a825;}
+  .tulos-btn.active-kieltaytyi{background:#fce4ec;border-color:#c62828;color:#c62828;}
+  .tulos-btn.active-palaa{background:#e3f2fd;border-color:#1565c0;color:#1565c0;}
+  .hinta-row{display:flex;gap:8px;align-items:center;margin-top:10px;}
+  .hinta-row input{flex:1;}
+  .hinta-row span{font-size:14px;color:#888;white-space:nowrap;}
+  .submit-btn{
+    width:100%;padding:16px;background:#0B2F5C;color:#fff;
+    border:none;border-radius:10px;font-size:16px;font-weight:600;
+    cursor:pointer;margin-top:4px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .submit-btn:active{transform:scale(0.98);}
+  .submit-btn:disabled{background:#aaa;cursor:not-allowed;}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;
+    font-size:14px;opacity:0;transition:opacity 0.3s;pointer-events:none;
+    white-space:nowrap;z-index:999;
+  }
+  .toast.show{opacity:1;}
+  .toast.error{background:#c62828;}
+  .log-section{margin-top:4px;}
+  .log-item{
+    padding:12px 0;border-bottom:1px solid #f0f0f0;
+  }
+  .log-item:last-child{border-bottom:none;}
+  .log-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;}
+  .log-name{font-size:14px;font-weight:600;color:#1a1a1a;}
+  .log-badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;}
+  .badge-kauppa{background:#e8f5e9;color:#2e7d32;}
+  .badge-eikotona{background:#fff8e1;color:#f9a825;}
+  .badge-kieltaytyi{background:#fce4ec;color:#c62828;}
+  .badge-palaa{background:#e3f2fd;color:#1565c0;}
+  .log-address{font-size:13px;color:#888;}
+  .log-price{font-size:13px;color:#0B2F5C;font-weight:500;}
+  .empty{font-size:13px;color:#bbb;text-align:center;padding:16px 0;}
+  .myyjä-row{display:flex;gap:8px;align-items:center;}
+  .myyjä-row input{flex:1;}
+</style>
+</head>
+<body>
+
+<h1>Klasi Oy</h1>
+<div class="sub" id="pvm"></div>
+
+<div class="card">
+  <div class="card-title">Myyjä</div>
+  <div class="myyjä-row">
+    <input type="text" id="myyjä" placeholder="Nimesi" autocomplete="name">
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Kirjaa käynti</div>
+
+  <label>Tulos</label>
+  <div class="tulos-grid">
+    <div class="tulos-btn" onclick="valitseTulos('kauppa')" id="btn-kauppa">✓ Kauppa</div>
+    <div class="tulos-btn" onclick="valitseTulos('eikotona')" id="btn-eikotona">⌂ Ei kotona</div>
+    <div class="tulos-btn" onclick="valitseTulos('kieltaytyi')" id="btn-kieltaytyi">✕ Kieltäytyi</div>
+    <div class="tulos-btn" onclick="valitseTulos('palaa')" id="btn-palaa">↩ Palataan</div>
+  </div>
+
+  <div id="hinta-kentta" style="display:none;">
+    <div class="hinta-row">
+      <input type="number" id="hinta" placeholder="0" inputmode="decimal" min="0">
+      <span>€ (sis. ALV)</span>
+    </div>
+  </div>
+
+  <label>Asiakkaan nimi</label>
+  <input type="text" id="asiakas-nimi" placeholder="Etunimi Sukunimi" autocomplete="off">
+
+  <label>Osoite</label>
+  <input type="text" id="osoite" placeholder="Katuosoite, kaupunki" autocomplete="off">
+
+  <label>Puhelinnumero <span style="color:#bbb;font-size:12px">(valinnainen)</span></label>
+  <input type="tel" id="puhelin" placeholder="+358 40 123 4567" autocomplete="off">
+
+  <label>Muistiinpanot <span style="color:#bbb;font-size:12px">(valinnainen)</span></label>
+  <textarea id="muistiinpanot" placeholder="Esim. palaa ensi viikolla, haluaa tarjouksen..."></textarea>
+
+  <button class="submit-btn" id="submit-btn" onclick="lahetaKirjaus()" style="margin-top:16px;">
+    Kirjaa käynti
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-title">Tämän päivän käynnit</div>
+  <div class="log-section" id="log-lista">
+    <div class="empty">Ei vielä käyntejä tänään</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_ID = '19xjNrkBIBoGl6KGelOiO1d-f-hBHR6VYFqgvHE7Vmzk';
+const CLIENT_EMAIL = 'klasi-app@klasi-498122.iam.gserviceaccount.com';
+const PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDYmrAl1eZOB6aF
+0gbuJQ11bdfpX3EB2yGW3bJ2g11y3jr3JVcUxnv7NShk/eg9WYyr8xB9j6mZgaqV
+N9lKL8HvT0OORLxx5/s7TUSFI75eNZXkdAkhcIuDcwRKalvd69mVzCz0Nn7j0mx4
+u1vMbRF/9sS64N+0RgHJiDlt5LJmTNDXc4yCAGT0RDCvSnZh9xRWwFT1wvvc19Oi
+vYmZUjy8x3m+WBB3az8TDLM5oMuy6584H4z0GKBGdOTYlFpdcC1f7uFgJCA7vzAh
+vZ0TpVjjvl+i5LjBgxC3abwfobUpcezk1/FfhIGTu7kdbPjq1QkERnILwOmkO8MH
+NnRGVBLpAgMBAAECggEAAn1Caruy2o3EZ5UoNft7esoVDgYsjFQWWakWCtfIseAh
+5WYt4kvdKYzWkeGOovzcJmI9qJnA8T+pnchYzfbVfionD9PUc0rFl8yadEON+Nmm
+dAWNRALkR/gt8fgXf4nwbYp3CX5b8AMvZeXn7X+jFx/EHa5lqvXwGyuYMF4aJ3cm
+kTwN2s5RIqdX81tghxuc5Oaven0l7HwMjF/wRLkVHg3jUkoGbY8V/jeVUAhBJgRX
+5GE5yEL6piiC4M1EiVj/xiBpbyDzVrwfi/Nfk8pqMP/kbETjG4ixzAbdG5389d/m
+YGwVBFbijbAJoktLQF/GJTtwSUXlPl/QWS2zAE/M0QKBgQD0UWm4IrcWqyjxtM8d
+5PlIyAyP211enufM6ozSzVySGXkzTcs/osxaQozk7wKS4Po6WxFwSAhQcD9sqHpR
+GDQtLjkgqif2GATNCQAW2/8OAAF40yKUI011Og/RPtJqUqQDNcbP+FMDBFuCA22a
+nIj0DYuTfwMPLmduLPub9hSVGQKBgQDi9gsXQGQeMSaqPY8fzInSjfPwwRj9PhUz
+E32Kfv1+8vDyynhmNgnIDMMYRdHZl2Pxn3f8Kl+FR+zwzbH26TIi8IxtLTDz5+cO
+NVgZSPHDgTdvNRPWC1LEr6S7xE1tIU5BrM27rIOfsSxBSZ/O/eDFQ9LM1lobDO1M
+KYlb5l7WUQKBgQDvrT5tKYE7d8W++IWG6i2zPK02IxlBzdnQqPhlhJkfqmW/8r1F
+PEwE7+yQWfjIZnST8ur0n3Wok7VkvxLfo0LsX8AjT0nMnlt3WTEBO+jGrzLCeT4e
+3VMLgV4rA9of+9pyW7siIpYtC4VJ0lsfphikcvVOSPeTWQ6WgwKCSbJ/YQKBgCM6
+BSaqu99jyZiKzXgmCw4/MimgDvzfcfLnh4jDhRz7ICLPAjj7EjGWqYFO9O9M7BpI
+ohrliMXrD/+gLYshTsLVizY22W5CBD7UUMQ76ipqF+yO1HFYeJRGns71/P5/OOJA
+q/4BHLzghvnrL361MPntOP7KFlo0e3Bi0gsNipLBAoGAEck1U8znLey0VeLYiKR8
+jf/Wtv/LFdtEqAaa84HOw1WVA25xLWdBkYFIFNg/x5gpdlG/9QkI515XnrX6YtkI
+f3psrUQ4KqiPCT1lzFUX2rZdHwemeq3VzNB+ZHYTGK5HYALzXPUtZ5voKPbOnSDX
+uEHDEYeg9BhYljtRDyxq288=
+-----END PRIVATE KEY-----`;
+
+let tulos = null;
+const kirjaukset = [];
+
+document.getElementById('pvm').textContent = new Date().toLocaleDateString('fi-FI', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+function valitseTulos(t) {
+  tulos = t;
+  ['kauppa','eikotona','kieltaytyi','palaa'].forEach(x => {
+    document.getElementById('btn-'+x).className = 'tulos-btn' + (x===t ? ' active-'+x : '');
+  });
+  document.getElementById('hinta-kentta').style.display = t==='kauppa' ? 'block' : 'none';
+}
+
+function naytaToast(msg, virhe=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (virhe ? ' error' : '');
+  setTimeout(() => t.className='toast', 2500);
+}
+
+function paivitaLoki() {
+  const lista = document.getElementById('log-lista');
+  if (!kirjaukset.length) { lista.innerHTML = '<div class="empty">Ei vielä käyntejä tänään</div>'; return; }
+  const tulosLabels = {kauppa:'Kauppa',eikotona:'Ei kotona',kieltaytyi:'Kieltäytyi',palaa:'Palataan'};
+  lista.innerHTML = [...kirjaukset].reverse().map(k => `
+    <div class="log-item">
+      <div class="log-header">
+        <div class="log-name">${k.nimi || '—'}</div>
+        <span class="log-badge badge-${k.tulos}">${tulosLabels[k.tulos]}</span>
+      </div>
+      <div class="log-address">${k.osoite}</div>
+      ${k.hinta ? `<div class="log-price">${k.hinta} €</div>` : ''}
+    </div>`).join('');
+}
+
+async function haeToken() {
+  const now = Math.floor(Date.now()/1000);
+  const header = btoa(JSON.stringify({alg:'RS256',typ:'JWT'})).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const claim = btoa(JSON.stringify({
+    iss: CLIENT_EMAIL, scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud: 'https://oauth2.googleapis.com/token', exp: now+3600, iat: now
+  })).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+
+  const signing = header+'.'+claim;
+  const key = await crypto.subtle.importKey('pkcs8',
+    str2ab(PRIVATE_KEY.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\n/g,'')),
+    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(signing));
+  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const jwt = signing+'.'+sigB64;
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:`grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`
+  });
+  const data = await res.json();
+  return data.access_token;
+}
+
+function str2ab(b64) {
+  const bin = atob(b64);
+  const buf = new ArrayBuffer(bin.length);
+  const view = new Uint8Array(buf);
+  for (let i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
+  return buf;
+}
+
+async function varmistaSarakkeet(token) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Arkki1!A1:H1`;
+  const res = await fetch(url, {headers:{Authorization:'Bearer '+token}});
+  const data = await res.json();
+  if (!data.values || !data.values[0] || data.values[0][0] !== 'Päivämäärä') {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Arkki1!A1:H1?valueInputOption=RAW`, {
+      method:'PUT', headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({values:[['Päivämäärä','Aika','Myyjä','Tulos','Asiakkaan nimi','Osoite','Puhelin','Hinta (€)','Muistiinpanot']]})
+    });
+  }
+}
+
+async function lahetaKirjaus() {
+  const myyjä = document.getElementById('myyjä').value.trim();
+  const nimi = document.getElementById('asiakas-nimi').value.trim();
+  const osoite = document.getElementById('osoite').value.trim();
+  const puhelin = document.getElementById('puhelin').value.trim();
+  const hinta = document.getElementById('hinta').value.trim();
+  const muistiinpanot = document.getElementById('muistiinpanot').value.trim();
+
+  if (!myyjä) { naytaToast('Kirjoita nimesi', true); return; }
+  if (!tulos) { naytaToast('Valitse tulos', true); return; }
+  if (!osoite) { naytaToast('Syötä osoite', true); return; }
+  if (tulos==='kauppa' && !hinta) { naytaToast('Syötä hinta', true); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Tallennetaan...';
+
+  try {
+    const now = new Date();
+    const pvm = now.toLocaleDateString('fi-FI');
+    const aika = now.toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});
+    const tulosLabels = {kauppa:'Kauppa',eikotona:'Ei kotona',kieltaytyi:'Kieltäytyi',palaa:'Palataan'};
+
+    const token = await haeToken();
+    await varmistaSarakkeet(token);
+
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Arkki1!A:I:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
+      method:'POST', headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({values:[[pvm, aika, myyjä, tulosLabels[tulos], nimi, osoite, puhelin, hinta||'', muistiinpanot]]})
+    });
+
+    kirjaukset.push({tulos, nimi, osoite, hinta});
+    paivitaLoki();
+    naytaToast('✓ Kirjattu!');
+
+    tulos = null;
+    ['kauppa','eikotona','kieltaytyi','palaa'].forEach(x => document.getElementById('btn-'+x).className='tulos-btn');
+    document.getElementById('hinta-kentta').style.display='none';
+    document.getElementById('asiakas-nimi').value='';
+    document.getElementById('osoite').value='';
+    document.getElementById('puhelin').value='';
+    document.getElementById('hinta').value='';
+    document.getElementById('muistiinpanot').value='';
+
+  } catch(e) {
+    naytaToast('Virhe tallennuksessa', true);
+    console.error(e);
+  }
+
+  btn.disabled=false; btn.textContent='Kirjaa käynti';
+}
+</script>
+</body>
+</html>
