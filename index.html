@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klasi — Hintalaskuri</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 22px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .logo { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #0B2F5C; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .group-label {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin: 14px 0 8px;
+  }
+  .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .size-label { font-size: 15px; font-weight: 600; color: #0B2F5C; width: 30px; }
+  .size-price { font-size: 12px; color: #999; width: 52px; }
+  .qty-btn {
+    width: 34px; height: 34px;
+    border: 1px solid #ddd; background: #fff; color: #0B2F5C;
+    border-radius: 8px; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .qty-btn:active { background: #f0f0f0; transform: scale(0.95); }
+  .qty-num { font-size: 17px; font-weight: 600; width: 26px; text-align: center; color: #1a1a1a; }
+  .result-box { background: #f7f9fc; border-radius: 10px; padding: 16px; margin-top: 6px; }
+  .result-main-label { font-size: 12px; color: #888; margin-bottom: 2px; }
+  .result-main { font-size: 34px; font-weight: 700; color: #0B2F5C; line-height: 1.1; }
+  .min-badge {
+    display: none; font-size: 11px;
+    background: #fff3cd; color: #856404;
+    border-radius: 6px; padding: 2px 8px; margin-top: 8px;
+  }
+  .result-subs {
+    display: flex; gap: 16px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid #e8e8e8;
+  }
+  .sub-item { font-size: 12px; color: #888; }
+  .sub-item span { display: block; font-size: 14px; font-weight: 600; color: #1a1a1a; margin-top: 1px; }
+  .bottom-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .reset-btn {
+    font-size: 13px; color: #aaa; background: none;
+    border: none; cursor: pointer; padding: 4px 0; text-decoration: underline;
+  }
+  .reset-btn:active { color: #666; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Klasi Oy</div>
+  <div class="subtitle">Hintalaskuri — ikkunanpesu</div>
+
+  <div class="group-label">2-pintainen</div>
+  <div class="row">
+    <span class="size-label">S</span>
+    <span class="size-price">7,50 €</span>
+    <button class="qty-btn" onclick="change('S2',-1)">−</button>
+    <span class="qty-num" id="q-S2">0</span>
+    <button class="qty-btn" onclick="change('S2',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">M</span>
+    <span class="size-price">12,00 €</span>
+    <button class="qty-btn" onclick="change('M2',-1)">−</button>
+    <span class="qty-num" id="q-M2">0</span>
+    <button class="qty-btn" onclick="change('M2',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">L</span>
+    <span class="size-price">16,00 €</span>
+    <button class="qty-btn" onclick="change('L2',-1)">−</button>
+    <span class="qty-num" id="q-L2">0</span>
+    <button class="qty-btn" onclick="change('L2',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">XL</span>
+    <span class="size-price">20,00 €</span>
+    <button class="qty-btn" onclick="change('XL2',-1)">−</button>
+    <span class="qty-num" id="q-XL2">0</span>
+    <button class="qty-btn" onclick="change('XL2',1)">+</button>
+  </div>
+
+  <div class="group-label">4-pintainen (+35 %)</div>
+  <div class="row">
+    <span class="size-label">S</span>
+    <span class="size-price">10,13 €</span>
+    <button class="qty-btn" onclick="change('S4',-1)">−</button>
+    <span class="qty-num" id="q-S4">0</span>
+    <button class="qty-btn" onclick="change('S4',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">M</span>
+    <span class="size-price">16,20 €</span>
+    <button class="qty-btn" onclick="change('M4',-1)">−</button>
+    <span class="qty-num" id="q-M4">0</span>
+    <button class="qty-btn" onclick="change('M4',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">L</span>
+    <span class="size-price">21,60 €</span>
+    <button class="qty-btn" onclick="change('L4',-1)">−</button>
+    <span class="qty-num" id="q-L4">0</span>
+    <button class="qty-btn" onclick="change('L4',1)">+</button>
+  </div>
+  <div class="row">
+    <span class="size-label">XL</span>
+    <span class="size-price">27,00 €</span>
+    <button class="qty-btn" onclick="change('XL4',-1)">−</button>
+    <span class="qty-num" id="q-XL4">0</span>
+    <button class="qty-btn" onclick="change('XL4',1)">+</button>
+  </div>
+
+  <hr class="divider">
+
+  <div class="result-box">
+    <div class="result-main-label">Asiakashinta (sis. ALV 25,5 %)</div>
+    <div class="result-main" id="total">100,00 €</div>
+    <div class="min-badge" id="minbadge">Minimiveloitus</div>
+    <div class="result-subs">
+      <div class="sub-item">ALV 0 %<span id="alv0">79,68 €</span></div>
+      <div class="sub-item">Provisio 27,5 %<span id="provisio">21,91 €</span></div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <button class="reset-btn" onclick="reset()">Nollaa</button>
+  </div>
+</div>
+
+<script>
+const ALV=1.255,MIN=100,PROV=0.275;
+const prices={S2:7.5,M2:12,L2:16,XL2:20,S4:10.125,M4:16.2,L4:21.6,XL4:27};
+const qty={S2:0,M2:0,L2:0,XL2:0,S4:0,M4:0,L4:0,XL4:0};
+
+function fmt(n){return n.toLocaleString('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+
+function calc(){
+  let sum=0;
+  for(const s in qty) sum+=qty[s]*prices[s];
+  const isMin=sum<MIN;
+  const total=isMin?MIN:Math.round(sum*100)/100;
+  const alv0=total/ALV;
+  document.getElementById('total').textContent=fmt(total);
+  document.getElementById('alv0').textContent=fmt(alv0);
+  document.getElementById('provisio').textContent=fmt(alv0*PROV);
+  document.getElementById('minbadge').style.display=isMin?'inline-block':'none';
+}
+
+function change(size,d){
+  qty[size]=Math.max(0,qty[size]+d);
+  document.getElementById('q-'+size).textContent=qty[size];
+  calc();
+}
+
+function reset(){
+  for(const s in qty){qty[s]=0;document.getElementById('q-'+s).textContent=0;}
+  calc();
+}
+</script>
+</body>
+</html>
