@@ -1,5 +1,5 @@
 // Klasi PIN-suojaus — vaihda PIN muuttamalla KLASI_PIN arvoa
-const KLASI_PIN = "123456";
+const KLASI_PIN = "040804";
 
 (function() {
   const STORAGE_KEY = "klasi_auth";
